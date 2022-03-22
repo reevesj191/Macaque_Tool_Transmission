@@ -1,0 +1,2 @@
+,run_id,datetime,h,w,starting_users,n_time_steps,n_agents,life_span,transmission_mech,stop_reason
+0,2Fj4ft,2022-02-28 17:19:48.318233,20,20,1,116,100,500,social,No more users

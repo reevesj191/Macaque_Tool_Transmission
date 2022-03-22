@@ -1,0 +1,2 @@
+,run_id,datetime,h,w,starting_users,n_time_steps,n_agents,life_span,transmission_mech,stop_reason
+0,YTflSk,2022-02-28 17:54:09.695058,20,20,1,108,100,500,inherited,No more users
