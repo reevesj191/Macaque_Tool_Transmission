@@ -19,7 +19,7 @@ All components of the ABM can be found in the model folder. All of the files con
 
   There are a few different ways to run the model. The easiest way is to use the visualization.py file. Running this file initialize a visual verison of the in your web browser. It provides you will the option to start and stop the model. Associated with the model run will be exported as a .csv file at the end of the run. Data will only be exported from models that reach fixation. In other words, no data is exported if you prematurely end the run.
   
-  If you wish to conduct a parameter sweep or reproduce the dataset used in the publication, the use the behavior_space.py file. There is no visualization associated with runs. Make sure that number of cores is set to match hardware of your computer.
+  If you wish to conduct a parameter sweep or reproduce the dataset used in the publication, the use the behavior_space.py file. There is no visualization associated with runs. Make sure that number of cores is set to match hardware of your computer. All data associated with each run will be exported to the "output" folder contained within the "Model" folder.
   
 # Analysis Files
 
