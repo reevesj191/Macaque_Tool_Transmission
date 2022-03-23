@@ -1,0 +1,241 @@
+---
+title: "Analysis and Diagnostics"
+author: "Jonathan Reeves"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, echo=TRUE, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(rethinking)
+library(knitr)
+
+run_data <- readRDS(file = "../Data/ABM_run_summaries.RDS")
+nodes_compile <- readRDS(file = "../Data/ABM_Compiled.RDS")
+models <- list()
+N_ITER <- 100
+```
+
+# Model Specification
+
+
+```{r model spec}
+
+model_spec <-   alist(
+    U ~ dbinom(1, p),
+    logit(p) <- a + h[H] * bC * C,
+    a ~ dnorm(0,1.5),
+    h[H] ~ dnorm(0,1.5),
+    bC ~ dlnorm(0,.3)
+  )
+
+```
+
+# Application of model to the social learning condition
+
+## Diagnostic Run with 1 Chain
+
+```{r social learning single change run, echo=FALSE}
+
+set.seed(11) # seed is set for reproducibility
+
+ids <- run_data$run_id[run_data$transmission_mech == "social"]
+ids <- sample(ids, N_ITER)
+nodes <- subset(nodes_compile, run_id %in% ids) 
+
+dat <- list(
+  U = nodes$U,
+  C = nodes$EV_C,
+  A = nodes$A,
+  H = nodes$H
+)
+
+models$social <- ulam(
+  model_spec,
+  data = dat, 
+  chains = 1,
+  cores = 1,
+  iter = 2000,
+  log_lik = TRUE, 
+  cmdstan = TRUE
+  )
+
+
+```
+
+No errors returned or warnings returned
+
+## Run again for diagnostics
+
+The model is re-run using 3 chains to ensure that the posterior distributions is 
+appropriately sampled.
+
+
+```{r social learning 3 chain run, echo=FALSE}
+
+set.seed(11) # seed is set for reproducibility
+
+ids <- run_data$run_id[run_data$transmission_mech == "social"]
+ids <- sample(ids, N_ITER)
+nodes <- subset(nodes_compile, run_id %in% ids) 
+
+dat <- list(
+  U = nodes$U,
+  C = nodes$EV_C,
+  A = nodes$A,
+  H = nodes$H
+)
+
+models$social <- ulam(
+  model_spec,
+  data = dat, 
+  chains = 3,
+  cores = 3,
+  iter = 2000,
+  log_lik = TRUE, 
+  cmdstan = TRUE
+  )
+
+
+```
+
+### Summary of outcome
+
+```{r social summary sample}
+
+precis(models$social,depth = 2)
+
+```
+
+### Markov Chain Performance
+
+#### Trace Plot
+
+```{r social trace plot}
+
+traceplot(models$social, pars = c("a",
+                                  "h[1]",
+                                  "h[2]",
+                                  "h[3]",
+                                  "h[4]",
+                                  "bC"))
+```
+
+
+#### Trank Plot
+```{r social trank plot}
+
+trankplot(models$social, pars = c("a",
+                                  "h[1]",
+                                  "h[2]",
+                                  "h[3]",
+                                  "h[4]",
+                                  "bC"))
+```
+
+
+
+# Application of model to the inheritance learning condition
+
+## Diagnostic Run with 1 Chain
+
+```{r social learning single change run, echo=FALSE}
+
+set.seed(11) # seed is set for reproducibility
+
+ids <- run_data$run_id[run_data$transmission_mech == "inherited"]
+ids <- sample(ids, N_ITER)
+nodes <- subset(nodes_compile, run_id %in% ids) 
+
+dat <- list(
+  U = nodes$U,
+  C = nodes$EV_C,
+  A = nodes$A,
+  H = nodes$H
+)
+
+models$inherited <- ulam(
+  model_spec,
+  data = dat, 
+  chains = 1,
+  cores = 1,
+  iter = 2000,
+  log_lik = TRUE, 
+  cmdstan = TRUE
+  )
+
+
+```
+
+No errors returned or warnings returned
+
+## Run again for diagnostics
+
+The model is re-run using 3 chains to ensure that the posterior distributions is 
+appropriately sampled.
+
+
+```{r social learning 3 chain run, echo=FALSE}
+
+set.seed(11) # seed is set for reproducibility
+
+ids <- run_data$run_id[run_data$transmission_mech == "inherited"]
+ids <- sample(ids, N_ITER)
+nodes <- subset(nodes_compile, run_id %in% ids) 
+
+dat <- list(
+  U = nodes$U,
+  C = nodes$EV_C,
+  A = nodes$A,
+  H = nodes$H
+)
+
+models$inherited <- ulam(
+  model_spec,
+  data = dat, 
+  chains = 3,
+  cores = 3,
+  iter = 2000,
+  log_lik = TRUE, 
+  cmdstan = TRUE
+  )
+
+
+```
+
+### Summary of outcome
+
+```{r social summary sample}
+
+precis(models$inherited,depth = 2)
+
+```
+
+### Markov Chain Performance
+
+#### Trace Plot
+
+```{r social trace plot}
+
+traceplot(models$social, pars = c("a",
+                                  "h[1]",
+                                  "h[2]",
+                                  "h[3]",
+                                  "h[4]",
+                                  "bC"))
+```
+
+
+#### Trank Plot
+```{r social trank plot}
+
+trankplot(models$social, pars = c("a",
+                                  "h[1]",
+                                  "h[2]",
+                                  "h[3]",
+                                  "h[4]",
+                                  "bC"))
+```
+
+
