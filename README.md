@@ -13,7 +13,7 @@ All components of the ABM can be found in the model folder. All of the files con
 
   The model was developed and implemented in Python 3.9 but it should work on earlier versions of python. I have also tried running the model in python 3.8 and 3.7 and it worked fine. I have not tried running the ABM using Anaconda but I do not see any reason that this would be an issue. 
   
-  The majority of the libraries required to run the ABM are installed when python is initially installed. In addition to simply installing python 3 the library agent-based modeling library Mesa must be installed. This can be done using pip. 
+  The majority of the libraries required to run the ABM are installed when python is initially installed. The agent-based modeling library Mesa must also be installed. This can be done using pip. 
 
 ## Running the model
 
