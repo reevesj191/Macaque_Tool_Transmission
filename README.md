@@ -23,7 +23,7 @@ All components of the ABM can be found in the model folder. All of the files con
   
 # Analysis Files
 
-All of the code used to carry out the analysis is found in the "Analysis" folder. Here you will find 2 Rmarkdown files. The file called "Macaque_Diagnostics" reports on the markov chain used to sample the posterior distributions. The file called "Macaque_analysis" is the code needed to reproduce the analysis and figures presented in the paper.
+All of the code used to carry out the analysis is found in the "Analysis" folder. Here you will find 2 Rmarkdown files. The file called "Macaque_Diagnostics" reports on the markov chain used to sample the posterior distributions.
 
 The code makes use of the rethinking package. If you do not have the rethinking package installed then I suggest that you visit the rethinking pape in order to ensure everything is installed properly.
 
