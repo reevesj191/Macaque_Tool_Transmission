@@ -27,7 +27,7 @@ All of the code used to carry out the analysis is found in the "Analysis" folder
 
 The code makes use of the rethinking package. If you do not have the rethinking package installed then I suggest that you visit the rethinking pape in order to ensure everything is installed properly.
 
-The data needed to run these Rmarkdown files is provided in the "Data" folder. This folder contains the data for both agent-based modeling conditions. The data from Koram island is part of one the author's ongoing research and, thus, cannot be made publically available. Nevertheless, those interested in reproducing this part of the paper or using this data set can make a request by writing the authors. 
+The data needed to run these Rmarkdown files is provided in the "Data" folder. This folder contains the data for both agent-based modeling conditions. The data from Koram island is part of one the author's ongoing research and, thus, cannot be made publically available. Nevertheless, we have provided a PDF of version of the Rmarkdown for those who wish to see the code. Those interested in reproducing this part of the paper or using this data set can make a request by writing the authors. 
 
 # Feedback, bugs, issues
 
