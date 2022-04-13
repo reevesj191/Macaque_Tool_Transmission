@@ -1,5 +1,5 @@
 ---
-title: "Analysis and Diagnostics"
+title: "Analysis and Diagnostics of Agent-Based Model"
 author: "Jonathan Reeves"
 date: "`r Sys.Date()`"
 output: pdf_document
@@ -24,8 +24,8 @@ N_ITER <- 100
 
 model_spec <-   alist(
     U ~ dbinom(1, p),
-    logit(p) <- a + h[H] * bC * C,
-    a ~ dnorm(0,1.5),
+    logit(p) <- a[H] + h[H] * bC * C,
+    a[H] ~ dnorm(0,1.5),
     h[H] ~ dnorm(0,1.5),
     bC ~ dlnorm(0,.3)
   )
@@ -104,8 +104,23 @@ models$social <- ulam(
 
 ```{r social summary sample}
 
-precis(models$social,depth = 2)
+row_names <- c("Intercept: Common-Like, not-tool-using age",
+               "Intercept: Hybrid-Like, not-tool-using age",
+               "Intercept: Common-Like, tool-using age",
+               "Intercept: Hybrid-Like, tool-using age",
+               "Hair Pattern: Common-Like, not-tool-using age", 
+               "Hair Pattern: Hybrid-Like, not-tool-using age",
+               "Hair Pattern: Common-Like, tool-using age",
+               "Hair Pattern: Hybrid-Like, tool-using age",
+               "Centrality")
+        
+social_model_sum <- precis(models$social,depth = 2)
+social_model_link <- apply(social_model_sum, 2, inv_logit)
+social_model_link <- round(social_model_link,3)
+social_model_link[,5] <- round(social_model_sum$n_eff)
+rownames(social_model_link) <- row_names
 
+write.csv(social_model_link,"Social_ABM_Marginal_Distributions_2.csv")
 ```
 
 ### Markov Chain Performance
@@ -114,7 +129,10 @@ precis(models$social,depth = 2)
 
 ```{r social trace plot}
 
-traceplot(models$social, pars = c("a",
+traceplot(models$social, pars = c("a[1]",
+                                  "a[2]",
+                                  "a[3]",
+                                  "a[4]",
                                   "h[1]",
                                   "h[2]",
                                   "h[3]",
@@ -126,7 +144,10 @@ traceplot(models$social, pars = c("a",
 #### Trank Plot
 ```{r social trank plot}
 
-trankplot(models$social, pars = c("a",
+trankplot(models$social, pars = c("a[1]",
+                                  "a[2]",
+                                  "a[3]",
+                                  "a[4]",
                                   "h[1]",
                                   "h[2]",
                                   "h[3]",
@@ -206,19 +227,27 @@ models$inherited <- ulam(
 
 ### Summary of outcome
 
-```{r social summary sample}
+```{r inherit summary sample}
 
-precis(models$inherited,depth = 2)
+inherit_model_sum <- precis(models$inherit,depth = 2)
+inherit_model_link <- apply(inherit_model_sum, 2, inv_logit)
+inherit_model_link[,5] <- round(inherit_model_sum$n_eff)
+inherit_model_link <- round(inherit_model_link,3)
+rownames(inherit_model_link) <- row_names
 
+write.csv(inherit_model_link,"inherit_ABM_Marginal_Distributions.csv")
 ```
 
 ### Markov Chain Performance
 
 #### Trace Plot
 
-```{r social trace plot}
+```{r inherit trace plot}
 
-traceplot(models$social, pars = c("a",
+traceplot(models$inherit, pars = c("a[1]",
+                                  "a[2]",
+                                  "a[3]",
+                                  "a[4]",
                                   "h[1]",
                                   "h[2]",
                                   "h[3]",
@@ -228,9 +257,12 @@ traceplot(models$social, pars = c("a",
 
 
 #### Trank Plot
-```{r social trank plot}
+```{r inherit trank plot}
 
-trankplot(models$social, pars = c("a",
+trankplot(models$inherited, pars = c("a[1]",
+                                  "a[2]",
+                                  "a[3]",
+                                  "a[4]",
                                   "h[1]",
                                   "h[2]",
                                   "h[3]",

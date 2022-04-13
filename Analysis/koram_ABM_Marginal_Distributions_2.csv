@@ -1,0 +1,10 @@
+"","mean","sd","5.5%","94.5%","n_eff","Rhat4"
+"Intercept: Common-Like, not-tool-using age",0.248,0.765,0.044,0.687,3533,0.731
+"Intercept: Hybrid-Like, not-tool-using age",0.139,0.752,0.024,0.475,2681,0.731
+"Intercept: Common-Like, tool-using age",0.393,0.679,0.162,0.671,2662,0.731
+"Intercept: Hybrid-Like, tool-using age",0.441,0.717,0.148,0.766,2448,0.731
+"Hair Pattern: Common-Like, not-tool-using age",0.368,0.805,0.059,0.851,3027,0.731
+"Hair Pattern: Hybrid-Like, not-tool-using age",0.274,0.799,0.038,0.774,2832,0.731
+"Hair Pattern: Common-Like, tool-using age",0.807,0.741,0.438,0.958,2436,0.731
+"Hair Pattern: Hybrid-Like, tool-using age",0.907,0.748,0.644,0.983,2534,0.731
+"Centrality",0.79,0.598,0.687,0.883,2496,0.731
