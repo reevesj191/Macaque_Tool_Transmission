@@ -7,7 +7,7 @@
 # Agent Based Model
 
 
-All components of the ABM can be found in the model folder. All of the files contained within this folder should be kept together in order to ensure full functionality of the model. The ABM makes use of the Mesa agent-based modeling framework for python. Follow this link[https://mesa.readthedocs.io/en/latest/] to learn more about about programming models using Mesa. 
+All components of the ABM can be found in the model folder. All of the files contained within this folder should be kept together in order to ensure full functionality of the model. The ABM makes use of the Mesa agent-based modeling framework for python. Follow this [link](https://mesa.readthedocs.io/en/latest/) to learn more about about programming models using Mesa. 
 
 ## Requirements and Depedencies
 
