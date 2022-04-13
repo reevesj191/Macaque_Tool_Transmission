@@ -7,13 +7,13 @@
 # Agent Based Model
 
 
-All components of the ABM can be found in the model folder. All of the files contained within this folder should be kept together in order to ensure full functionality of the model. The ABM makes use of the Mesa agent-based modeling framework for python. Follow this __link__  to learn more about about programming models using Mesa. 
+All components of the ABM can be found in the model folder. All of the files contained within this folder should be kept together in order to ensure full functionality of the model. The ABM makes use of the Mesa agent-based modeling framework for python. Follow this [link](https://mesa.readthedocs.io/en/latest/) to learn more about about programming models using Mesa. 
 
 ## Requirements and Depedencies
 
   The model was developed and implemented in Python 3.9 but it should work on earlier versions of python. I have also tried running the model in python 3.8 and 3.7 and it worked fine. I have not tried running the ABM using Anaconda but I do not see any reason that this would be an issue. 
   
-  The majority of the libraries required to run the ABM are installed when python is initially installed. In addition to simply installing python 3 the library agent-based modeling library Mesa must be installed. This can be done using pip. 
+  The majority of the libraries required to run the ABM are installed when python is initially installed. The agent-based modeling library Mesa must also be installed. This can be done using pip. 
 
 ## Running the model
 
@@ -23,11 +23,11 @@ All components of the ABM can be found in the model folder. All of the files con
   
 # Analysis Files
 
-All of the code used to carry out the analysis is found in the "Analysis" folder. Here you will find 2 Rmarkdown files. The file called "Macaque_Diagnostics" reports on the markov chain used to sample the posterior distributions. The file called "Macaque_analysis" is the code needed to reproduce the analysis and figures presented in the paper.
+All of the code used to carry out the analysis is found in the "Analysis" folder. Here you will find 2 Rmarkdown files. The file called "Macaque_Diagnostics" reports on the markov chain used to sample the posterior distributions.
 
 The code makes use of the rethinking package. If you do not have the rethinking package installed then I suggest that you visit the rethinking pape in order to ensure everything is installed properly.
 
-The data needed to run these Rmarkdown files is provided in the "Data" folder. This folder contains the data for both agent-based modeling conditions. The data from Koram island is part of one the author's ongoing research and, thus, cannot be made publically available. Nevertheless, those interested in reproducing this part of the paper or using this data set can make a request by writing the authors. 
+The data needed to run these Rmarkdown files is provided in the "Data" folder. This folder contains the data for both agent-based modeling conditions. The data from Koram island is part of one the author's ongoing research and, thus, cannot be made publically available. Nevertheless, we have provided a PDF of version of the Rmarkdown for those who wish to see the code. Those interested in reproducing this part of the paper or using this data set can make a request by writing the authors. 
 
 # Feedback, bugs, issues
 
