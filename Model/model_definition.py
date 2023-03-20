@@ -1,4 +1,4 @@
-from agents import Monkey
+from agents import Monkey, ToolResource
 from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
@@ -9,75 +9,103 @@ import random
 import os
 
 def compute_n_users(model):
-    agents = [agent.tool_user for agent in model.schedule.agents if agent.tool_user is True]
+
+    agents = [agent for agent in model.schedule.agents if isinstance(agent, Monkey)]
+    agents = [agent.tool_user for agent in agents if agent.tool_user is True]
     return len(agents)
 
 def compute_n_w_trait(model):
-    agents = [agent.tool_user for agent in model.schedule.agents if agent.tool_trait is True]
+
+    agents = [agent for agent in model.schedule.agents if isinstance(agent, Monkey)]
+    agents = [agent.tool_user for agent in agents if agent.tool_trait is True]
     return len(agents)
 
 class Mendelian_Monkeys(Model):
 
     def __init__(self,
-                 height, width, Na, N_Starting_Tool_users = 1,
+                 height, width, Na, N_Starting_Tool_users = 1, 
+                 N_Resources = 0, attraction = 5, learn_rate = 1,
                  trans_mode = "social", runs_path = "Test"):
         self.runs_path = runs_path
         self.run_id = get_random_alphanumeric_string(6)
         #self.run_id = "debug" # For debugging puposes only
         self.datetime = datetime.now()
         self.max_ts = 50000 # For debugging only
-        self.starting_users = N_Starting_Tool_users
-        self.model_stop = -1
-        self.current_id = 0
-        self.running = True
-        self.timestep = 0
-        self.Na = Na
-        self.life_span = 500
-        self.transmission_mode = trans_mode
+        self.starting_users = N_Starting_Tool_users # The number of individuals that begin with the tool use trait. 
+        self.model_stop = -1 # This will be populated with the reason the simulation ended. 
+        self.current_id = 0 # The id to be given to the next agent. This attribute is handled by mesa.
+        self.running = True # Determines if the model is running or not. This attribute is also handled by mesa 
+        self.timestep = 0 # The current time-step of the simulation
+        self.Na = Na # The number of agents in the model. 
+        self.Nr = N_Resources # The number of attractors within the model. 
+        self.asocial_rate = learn_rate
+        self.attractor_strength = attraction
+        self.transmission_mode = trans_mode # how the tool use trait is transmitted from one individual to the other. 
+
+        #### Debuging
+        # print(self.asocial_rate)
+        # print(self.Nr)
+        # print(self.attractor_strength)
 
         ### Space, Scheduling
 
-        self.schedule = RandomActivation(self)
-        self.grid = MultiGrid(width=width,
-                              height=height,
-                              torus= False)
-        d = {'source': [], 'target': []}
+        self.schedule = RandomActivation(self) # The order that the agents are iterated through during each time-step. 
 
+        self.grid = MultiGrid(width=width, # Grid type. This particular grid allows multiple agents to occupy a space. 
+                              height=height, 
+                              torus= False)
         self.node_data = []
-        self.social_links = pd.DataFrame(d)
-        self.ancestry_links = pd.DataFrame(d)
+        self.social_links = pd.DataFrame({'source': [], 'target': []} ) # Creates a dataframe where information on each interaction is held. Used to generate the social networks. 
+        self.ancestry_links = pd.DataFrame({'source': [], 'target': []}) # Creates a dataframe where information on each repoductive event is held. Not used in the paper. 
 
         ## create agents
 
         for i in range(Na-N_Starting_Tool_users):
             hair = random.choice([1,2])
             agent = Monkey(self.next_id(), self, tool_user= False,mom="Unknown", mom_user= "Unknown", hair=hair)
-            agent.age = random.randint(0,self.life_span) # stops mass die off events
+            agent.age = random.randint(0,100) # stops mass die off events
             x = self.random.randrange(self.grid.width)
             y = self.random.randrange(self.grid.height)
             self.grid.place_agent(agent,(x,y))
             self.schedule.add(agent)
 
+    
         for i in range(Na-(Na-N_Starting_Tool_users)):
             hair = 2
             agent = Monkey(self.next_id(), self, tool_user=True , mom="Unknown", mom_user="Unknown", hair=hair)
             x = int(width/2)
             y = int(height/2)
             agent.learned_tool_use = "OG"
+            agent.age = 25
             agent.tool_trait = True
             self.grid.place_agent(agent,(x,y))
             self.schedule.add(agent)
 
-        # TESTING ONLY #######
-        # agent = Monkey(self.next_id(), self, tool_user=False , mom=1, hair=2)
-        # x = self.random.randrange(self.grid.width)
-        # y = self.random.randrange(self.grid.height)
-        # agent.learned_tool_use = "OG"
-        # self.grid.place_agent(agent, (x, y))
-        # self.schedule.add(agent)
+        
+        if self.transmission_mode == "resource_attraction":
 
+            coord_list = []
 
+            for i in range(width):
+                x = i
+                for j in range(height):
+                    y=j 
+                    coord_list.append((x,y))
+
+    
+            coord_list = random.sample(coord_list, self.Nr)
+
+            for coords in coord_list:
+  
+                agent = ToolResource(self.next_id(), self)
+                self.grid.place_agent(agent,coords)
+                self.schedule.add(agent)
+
+                self.attractors = [obj for obj in self.schedule.agents if isinstance(obj, ToolResource)]
+                self.attractor_xy = [agent.pos for agent in self.attractors]
+            
         # write run Summary...
+
         print(self.run_id)
         if not os.path.exists(self.runs_path):
             os.mkdir(self.runs_path)
@@ -92,7 +120,6 @@ class Mendelian_Monkeys(Model):
         self.timestep += 1
         
         # Stopping Critera
-        
         prop_users = self.n_users/self.Na
         if prop_users >= .50:
             
@@ -127,13 +154,15 @@ class Mendelian_Monkeys(Model):
                                     "starting_users": self.starting_users,
                                     'n_time_steps': self.timestep,
                                     'n_agents': self.Na,
-                                    'life_span': self.life_span,
+                                    'n_attractors': self.Nr,
+                                    'a_learn_rate': self.asocial_rate,
+                                    'attractor_strength': self.attractor_strength,
                                     'transmission_mech': self.transmission_mode,
                                     'stop_reason': self.model_stop
                                     }, index=[0])
             run_sum.to_csv(sum_path)
-
-            for agents in self.schedule.agents:
+            monkeys = [agent for agent in self.schedule.agents if isinstance(agent, Monkey)]
+            for agents in monkeys:
                 node_dat = {"id": agents.unique_id, 
                             "run_id": self.run_id,
                             "living": agents.living,

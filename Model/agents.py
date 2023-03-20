@@ -1,8 +1,9 @@
 import numpy.random
+import random
+from scipy.spatial import KDTree
 from mesa import Agent
 from pandas import DataFrame, concat
 from math import sqrt
-import random
 
 class Monkey(Agent):
     """ The class of agent for the monkey model """
@@ -22,7 +23,7 @@ class Monkey(Agent):
         self.tool_user = tool_user # see tool_user argument
         self.learned_tool_use = False # True False statement indicating if the individual learned tool-use
         self.age = 0
-        self.age_learned_tool_use = -1 # The 
+        self.age_learned_tool_use = -1 
         self.ts_learned = "Naive"
         self.transmission_method = "Naive"
         self.living = True
@@ -60,7 +61,20 @@ class Monkey(Agent):
         #  the mother.
 
         return min(pos_dists), pos_dists.index(min(pos_dists))
+    
+    def ClosestAttractor(self):
+        
+        
+        tree = KDTree(self.model.attractor_xy)
+        dist, idx = tree.query(self.pos)
+        pos_dists = DataFrame({"idx":[idx], "dist": [dist]})
+        closest = (pos_dists[(pos_dists["dist"] == min(pos_dists["dist"]))])
 
+        closest = int(closest.sample()['idx'])
+        closest = self.model.attractors[closest]
+
+        self.nearest_attractor = closest.pos
+        
 ## Interaction Methods
 
     def move(self):
@@ -135,6 +149,44 @@ class Monkey(Agent):
             # Update the location of the agent
             self.model.grid.move_agent(self, new_position)
 
+    def move_2(self):
+        
+        possible_steps = self.model.grid.get_neighborhood(
+        self.pos,
+        moore=True,
+        include_center=True)
+
+        if self.tool_user is False:
+
+            new_position = self.random.choice(possible_steps)
+            self.model.grid.move_agent(self, new_position)
+
+        elif self.tool_user is True:
+
+            self.ClosestAttractor()
+
+            pos_dists = [] # An empty vector to hold distances
+            x1, y1 = self.nearest_attractor # xy coordinates of mother location
+
+            for loc in possible_steps:
+                x2, y2 = loc
+                distance = sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2))
+                pos_dists.append([distance])
+
+            d, idx = min(pos_dists), pos_dists.index(min(pos_dists))
+
+            prob = random.randint(1,100)
+            
+            if prob <= self.model.attractor_strength:
+                
+                new_position = possible_steps[idx]
+
+            else:
+                new_position = self.random.choice(possible_steps)
+
+            
+            self.model.grid.move_agent(self, new_position)
+
     def social_interaction(self):
 
         """ Identifies the ids of other individuals that currently 
@@ -145,7 +197,7 @@ class Monkey(Agent):
         # Returns a list of all individuals that share the location of the agent
 
         friends = self.model.grid.get_cell_list_contents(self.pos) 
-
+        friends = [friend for friend in friends if isinstance(friend, Monkey)]
         # Makes sure the list does not contain the agent itself.
 
         friends = [obj for obj in friends if obj.unique_id != self.unique_id] 
@@ -167,36 +219,10 @@ class Monkey(Agent):
             #self.model.social_links = self.model.social_links.append(link)
             self.model.social_links = concat([self.model.social_links, link])
 
-
-            # for i in range(len(friends)):
-            #     friend = friends[i]
-            
-            #     # Updates the edges dataframe with this proximity interaction
-                
-            #     link = DataFrame({"source":[friend.unique_id] , "target": [self.unique_id]})
-            #     self.model.social_links = self.model.social_links.append(link)
-
-            #     # Updates the agent attributes number of encounters and 
-            #     # number of tool-user encounters
-                
-            #     self.prox_associations += 1
-
-            #     # Update the number of tool_user_encounters 
-            #     if friend.tool_user == True:
-                    
-            #         self.tool_user_encounters += 1
-
-            #     else:
-            #         pass
-
-            
             return friend
         else: 
-            pass
-            
+            pass        
         # Returns of list of agents in the grid-cell to be passed to the reproduce function
-
-
     def reproduce(self, mate):
 
         """ Simulate reproductive events that generate new individuals. Also
@@ -292,7 +318,7 @@ class Monkey(Agent):
                     else:pass
                 else:pass
             
-            
+            # The conditions for learning when the mode of transmission is inherited.
             elif self.model.transmission_mode == "inherited":
                 
                     if x < 85 and self.tool_trait is True:
@@ -305,6 +331,17 @@ class Monkey(Agent):
                     
                     else:
                         pass
+            
+            # The conditions for learning when the mode of transmission is asocial.
+            elif self.model.transmission_mode == "asocial" or self.model.transmission_mode == "resource_attraction":
+
+                x <- random.randint(1,100)
+
+                if x <= self.model.asocial_rate: 
+                    self.tool_user = True
+                    self.age_learned_tool_use = self.age
+                    self.learned_tool_use = True
+                    self.ts_learned = self.model.timestep
 
             else: # For debugging
                 print("Warning! No transmission mode selected! Debug Model")
@@ -313,39 +350,42 @@ class Monkey(Agent):
             pass
 
     def grow(self):
+        
         self.age += 1 # Agents grow an age of 1 each time step
 
         # determines the probability of an individual dying at a given timestep the chances of dying increases as an
         # individual ages
+        
+        
 
         death_prob = .0001 + self.age/10000
 
-        # Detemines if the individual dies this timestep, drawn from a binomial distribution with the chances of success
-        # dependent on the death_prob
+            # Detemines if the individual dies this timestep, drawn from a binomial distribution with the chances of success
+            # dependent on the death_prob
 
         die = numpy.random.binomial(1,death_prob, 1)
 
         if die == 1: # If the individiaul dies.
 
-            # Update living to false    
+                # Update living to false    
             self.living = False 
 
-            # All information recorded and exported
+                # All information recorded and exported
             node_dat = {"id": self.unique_id,
-                        "run_id": self.model.run_id,
-                        "living": self.living,
-                        "tool_user": self.tool_user,
-                        "learned_tool_use": self.tool_user,
-                        "tool_user_encounters": self.tool_user_encounters,
-                        "age_learned_tool_use": self.age_learned_tool_use,
-                        "time_step_learned": self.ts_learned,
-                        "learning_method": self.transmission_method,
-                        "age": self.age,
-                        "mother": self.mother,
-                        "mother_tool_user": self.mother_tool_user,
-                        "hair": self.hairpattern}
+                            "run_id": self.model.run_id,
+                            "living": self.living,
+                            "tool_user": self.tool_user,
+                            "learned_tool_use": self.tool_user,
+                            "tool_user_encounters": self.tool_user_encounters,
+                            "age_learned_tool_use": self.age_learned_tool_use,
+                            "time_step_learned": self.ts_learned,
+                            "learning_method": self.transmission_method,
+                            "age": self.age,
+                            "mother": self.mother,
+                            "mother_tool_user": self.mother_tool_user,
+                            "hair": self.hairpattern}
 
-            # Appended to the nodes dataframe for export.
+                # Appended to the nodes dataframe for export.
             self.model.node_data.append(node_dat)
             self.model.grid.remove_agent(self)
             self.model.schedule.remove(self)
@@ -355,24 +395,40 @@ class Monkey(Agent):
     def step(self):
 
         #Move
-        self.move()
+        if self.model.transmission_mode == "resource_attraction":
+            self.move_2()
+        else:
+
+            self.move()
 
         #Interact Socially
         mates = self.social_interaction()
+        
         if mates is not None:
 
             #Repoduce
-            if len(self.model.schedule.agents) < self.model.Na:
+            agents = [agent for agent in self.model.schedule.agents if isinstance(agent, Monkey)]
+            if len(agents) < self.model.Na:
 
                 self.reproduce(mate=mates)
 
             else: pass
 
         else:pass
+
         #learn
         self.learn(friend=mates)
 
-        #Age and Grow
-        self.grow()
+        if self.model.transmission_mode == "inherited":
+            self.grow()
 
+class ToolResource(Agent):
+
+    def __init__(self, unique_id, model):
+
+        super().__init__(unique_id,model)
+        self.tool_user = "Resource"
+
+    def step(self):
+        pass
 

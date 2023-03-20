@@ -1,0 +1,290 @@
+---
+title: "Reeves et al 2023: Analysis Script"
+subtitle: "Bayesian Models"
+author: "Jonathan S. Reeves"
+date: "`r Sys.Date()`"
+output:  pdf_document
+---
+
+This markdown document accompanies the paper entitled, "Simulation and social network analysis provide insight into the acquisition of tool behavior in hybrid macaques". 
+
+This script can be used to analyze the data used to generate figures 2 and 3 in the text. The data can be downloaded from the Dryad repository associated with the paper. 
+
+# Load required packages 
+```{r setup, include=FALSE}
+# Packages
+library(rethinking)
+library(igraph)
+library(dplyr)
+library(knitr)
+library(pander)
+source("../Scripts/helper_functions.R") # Some useful helper functions.
+```
+
+# User defined variables
+```{r}
+
+N_CHAINS <- 3 
+
+```
+
+## Formal Specification of the Model
+  
+```{r, Formal specification}
+
+model_spec <-   alist(
+    U ~ dbinom(1, p),
+    logit(p) <- a[H] + bC[H] * C + bS[H] * S,
+    a[H] ~ dnorm(0,1.5),
+    bC[H] ~ dlnorm(0,.3),
+    bS[H] ~ dlnorm(0,.3)
+  )
+
+```
+
+Create a place to keep all the model results for plotting later.
+```{r}
+
+models <- list()
+
+```
+
+## Analysis of ABM data
+
+### ABM: Social Learning Condition
+
+```{r social condition}
+
+set.seed(11) # The seed is set for consistent outcomes
+nodes <- read.csv("../Data/ABM_Social_Condition.csv")
+
+dat <- list(
+  U = nodes$U, # Tool user
+  C = nodes$C, # EV centrality
+  S = nodes$S, # Strength to tool user
+  A = nodes$A, # Age
+  H = nodes$H # Phenotype
+)
+
+models$social <- ulam(
+  model_spec,
+  data = dat, 
+  chains = N_CHAINS,
+  cores = 3,
+  iter = 2000,
+  log_lik = TRUE, 
+  cmdstan = TRUE
+  )
+
+
+
+xres <- precis(models$social, depth = 2)
+xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
+
+xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+write.csv(xres_link, "../Tables/csvs/social_precis_link.csv")
+```
+
+### ABM: Inheritance Model
+
+
+
+```{r}
+
+set.seed(11)
+
+nodes <- read.csv("../Data/ABM_Inheritance_Condition.csv")
+
+dat <- list(
+  U = nodes$U,
+  C = nodes$C,
+  S = nodes$S,
+  A = nodes$A,
+  H = nodes$H
+)
+
+models$inheritance <- ulam(
+  model_spec,
+  data = dat, 
+  chains = N_CHAINS,
+  cores = N_CHAINS,
+  iter = 2000,
+  log_lik = TRUE, 
+  cmdstan = TRUE)
+
+
+
+xres <- precis(models$inheritance, depth = 2)
+xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
+
+xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+write.csv(xres_link, "../Tables/csvs/inheritance_precis_link.csv")
+```
+
+## Koram Data
+
+### Run Model 
+
+```{r}
+nodes <- read.csv('../Data/Koram.csv')
+
+set.seed(11)
+
+dat <- list(
+  U = nodes$U,
+  C = nodes$C,
+  S = nodes$S,
+  A = nodes$A,
+  H = nodes$H
+)
+
+models$koram_edge <- ulam(
+  model_spec,
+  data = dat, 
+  chains = N_CHAINS,
+  cores = 10,
+  iter = 2000,
+  log_lik = TRUE, 
+  cmdstan = TRUE 
+  )
+
+
+
+xres <- precis(models$koram, depth = 2)
+xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
+
+xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+write.csv(xres_link, "../Tables/csvs/koram_precis_link.csv")
+```
+
+### Ploting the Result
+
+```{r, fig.height=6, fig.width=6}
+
+names(models) <- c("Social",
+                   "Inheritance",
+                   "Koram")
+
+
+figure_1(models)
+
+```
+
+## Analysis of Alternative: Resource Attraction
+
+A new list to put the alternative hypotheses data in.
+
+```{r}
+amodels <- list()
+```
+### ABM N Attractors = 1, Attractor Strength = 25
+
+```{r na1ns25 model run}
+
+nodes <- read.csv("../Data/ABM_Asocial_na1as25_Condition.csv")
+
+set.seed(11)
+
+dat <- list(
+  U = nodes$U,
+  C = nodes$C,
+  S = nodes$S,
+  A = nodes$A,
+  H = nodes$H
+)
+
+amodels$na1as25 <- ulam(
+  model_spec,
+  data = dat, 
+  chains = N_CHAINS,
+  cores = 10,
+  iter = 2000,
+  log_lik = TRUE, 
+  cmdstan = TRUE 
+  )
+
+
+xres <- precis(amodels$na1as25, depth = 2)
+xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
+xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+write.csv(xres_link, "../Tables/csvs/na1as25_precis_link.csv") 
+```
+
+### ABM N Attractors = 10, Attractor Strength = 25
+
+```{r}
+nodes <- read.csv("../Data/ABM_Asocial_na10as25_Condition.csv")
+
+set.seed(11)
+
+dat <- list(
+  U = nodes$U,
+  C = nodes$C,
+  S = nodes$S,
+  A = nodes$A,
+  H = nodes$H
+)
+
+amodels$na10as25 <- ulam(
+  model_spec,
+  data = dat, 
+  chains = N_CHAINS,
+  cores = 10,
+  iter = 2000,
+  log_lik = TRUE, 
+  cmdstan = TRUE # only needed on macbook air M1
+  )
+
+
+xres <- precis(amodels$na10as25, depth = 2)
+xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
+xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+write.csv(xres_link, "../Tables/csvs/na10as25_precis_link.csv") 
+```
+
+### ABM N Attractors = 200, Attractor Strength = 25
+
+```{r}
+
+nodes <- read.csv("../Data/ABM_Asocial_na200as25_Condition.csv")
+
+set.seed(11)
+
+dat <- list(
+  U = nodes$U,
+  C = nodes$C,
+  S = nodes$S,
+  A = nodes$A,
+  H = nodes$H
+)
+
+amodels$na200as25 <- ulam(
+  model_spec,
+  data = dat, 
+  chains = N_CHAINS,
+  cores = 10,
+  iter = 2000,
+  log_lik = TRUE, 
+  cmdstan = TRUE # only needed on macbook air M1
+  )
+
+
+xres <- precis(amodels$na200as25, depth = 2)
+xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
+xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+write.csv(xres_link, "../Tables/csvs/na200as25_precis_link.csv") 
+```
+
+
+```{r fig.height=6, fig.width=6}
+
+names(amodels) <- c("1 Attractors",
+                    "10 Attractors",
+                   "200 Attractors")
+
+
+figure_1(amodels)
+
+
+```
+
