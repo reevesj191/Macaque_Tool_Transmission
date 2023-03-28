@@ -24,7 +24,7 @@ source("../Scripts/helper_functions.R") # Some useful helper functions.
 # User defined variables
 ```{r}
 
-N_CHAINS <- 3 
+N_CHAINS <- 3
 
 ```
 
@@ -82,6 +82,8 @@ xres <- precis(models$social, depth = 2)
 xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
 
 xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+xres_link$n_eff <- round(xres_link$n_eff)
+xres_link$Rhat4 <- round(xres_link$Rhat4,2)
 write.csv(xres_link, "../Tables/csvs/social_precis_link.csv")
 ```
 
@@ -118,6 +120,8 @@ xres <- precis(models$inheritance, depth = 2)
 xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
 
 xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+xres_link$n_eff <- round(xres_link$n_eff)
+xres_link$Rhat4 <- round(xres_link$Rhat4,2)
 write.csv(xres_link, "../Tables/csvs/inheritance_precis_link.csv")
 ```
 
@@ -152,8 +156,9 @@ models$koram_edge <- ulam(
 
 xres <- precis(models$koram, depth = 2)
 xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
-
 xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+xres_link$n_eff <- round(xres_link$n_eff)
+xres_link$Rhat4 <- round(xres_link$Rhat4,2)
 write.csv(xres_link, "../Tables/csvs/koram_precis_link.csv")
 ```
 
@@ -207,6 +212,8 @@ amodels$na1as25 <- ulam(
 xres <- precis(amodels$na1as25, depth = 2)
 xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
 xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+xres_link$n_eff <- round(xres_link$n_eff)
+xres_link$Rhat4 <- round(xres_link$Rhat4,2)
 write.csv(xres_link, "../Tables/csvs/na1as25_precis_link.csv") 
 ```
 
@@ -239,6 +246,8 @@ amodels$na10as25 <- ulam(
 xres <- precis(amodels$na10as25, depth = 2)
 xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
 xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+xres_link$n_eff <- round(xres_link$n_eff)
+xres_link$Rhat4 <- round(xres_link$Rhat4,2)
 write.csv(xres_link, "../Tables/csvs/na10as25_precis_link.csv") 
 ```
 
@@ -272,6 +281,8 @@ amodels$na200as25 <- ulam(
 xres <- precis(amodels$na200as25, depth = 2)
 xres_link <- apply(xres[,c(1:4)], 2, inv_logit)
 xres_link <- cbind(xres_link, xres[c("n_eff", "Rhat4")])
+xres_link$n_eff <- round(xres_link$n_eff)
+xres_link$Rhat4 <- round(xres_link$Rhat4,2)
 write.csv(xres_link, "../Tables/csvs/na200as25_precis_link.csv") 
 ```
 
