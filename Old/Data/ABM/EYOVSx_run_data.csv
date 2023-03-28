@@ -1,2 +1,0 @@
-,run_id,datetime,h,w,starting_users,n_time_steps,n_agents,life_span,transmission_mech,stop_reason
-0,EYOVSx,2022-02-28 17:27:08.909694,20,20,1,12,100,500,social,No more users

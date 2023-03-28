@@ -1,2 +1,0 @@
-,run_id,datetime,h,w,starting_users,n_time_steps,n_agents,life_span,transmission_mech,stop_reason
-0,ItBlxK,2022-02-28 18:10:21.503067,20,20,1,416,100,500,inherited,Tool Pop Achieved

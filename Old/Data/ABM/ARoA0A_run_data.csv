@@ -1,2 +1,0 @@
-,run_id,datetime,h,w,starting_users,n_time_steps,n_agents,life_span,transmission_mech,stop_reason
-0,ARoA0A,2022-02-28 17:18:05.271958,20,20,1,455,100,500,social,Tool Pop Achieved

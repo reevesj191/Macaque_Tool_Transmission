@@ -1,2 +1,0 @@
-,run_id,datetime,h,w,starting_users,n_time_steps,n_agents,life_span,transmission_mech,stop_reason
-0,d0X7x1,2022-02-28 17:35:33.796649,20,20,1,96,100,500,inherited,No more users

@@ -1,2 +1,0 @@
-,run_id,datetime,h,w,starting_users,n_time_steps,n_agents,life_span,transmission_mech,stop_reason
-0,oVVmuS,2022-02-28 18:10:47.868321,20,20,1,72,100,500,inherited,No more users
